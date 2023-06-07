@@ -1,0 +1,48 @@
+// const Pool = require("pg").Pool;
+
+// const pool = new Pool({
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   host: process.env.DB_HOST,
+//   port: process.env.DB_PORT,
+//   database: process.env.DB_NAME,
+// });
+
+// module.exports = pool;
+
+// const databaseConfig = { connectionString: process.env.DATABASE_URL };
+// const pool = new Pool(databaseConfig);
+// module.exports = pool;
+
+const { Client } = require("pg");
+
+const pool = new Client({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Use this option if you encounter self-signed certificates issue (only for development/testing)
+  },
+});
+
+pool
+  .connect()
+  .then(() => {
+    console.log("Connected to the database");
+  })
+  .catch((err) => {
+    console.error("Error connecting to the database:", err);
+  });
+
+pool.query(
+  `CREATE TABLE IF NOT EXISTS todo (
+      todo_id SERIAL PRIMARY KEY,
+      description VARCHAR(255)
+    )`,
+  (error, results) => {
+    if (error) {
+      console.error("Error creating table:", error);
+    } else {
+      console.log("Table todo created successfully");
+    }
+  }
+);
+module.exports = pool;
